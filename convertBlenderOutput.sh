@@ -20,6 +20,10 @@ if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}".gltfsource.x3
 
 echo "${TOVRMLX3D} --encoding classic ${PREFIX}.x3d > ${PREFIX}.x3dsource.x3dv"
 "${TOVRMLX3D}" --encoding classic "${PREFIX}".x3d > "${PREFIX}".x3dsource.x3dv 
+#echo "npx x3d-tidy -i `pwd`/${PREFIX}.x3d -o  `pwd`/${PREFIX}.x3dsource.x3dv"
+#npx x3d-tidy -i `pwd`/"${PREFIX}.x3d" -o  `pwd`/"${PREFIX}.x3dsource.x3dv"
+#npx x3d-tidy -i "${PREFIX}.x3d" -o  "${PREFIX}.x3dsource.x3dv"
+
 echo "${TOVRMLX3D} --validate ${PREFIX}.x3dsource.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}".x3dsource.x3dv; else echo "Validate disabled"; fi
 
@@ -96,8 +100,13 @@ echo "${TOVRMLX3D} --validate ${PREFIX}skinned.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"skinned.x3dv; else echo "Validate disabled"; fi
 
 
-echo "perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > ${PREFIX}final.x3dv"
-perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > "${PREFIX}"final.x3dv
+echo "perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > ${PREFIX}imaged.x3dv"
+perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > "${PREFIX}"imaged.x3dv
+echo "${TOVRMLX3D} --validate ${PREFIX}imaged.x3dv"
+if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"imaged.x3dv; else echo "Validate disabled"; fi
+
+echo "perl patchup.pl < ${PREFIX}imaged.x3dv > ${PREFIX}final.x3dv"
+perl patchup.pl < ${PREFIX}imaged.x3dv > "${PREFIX}"final.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}final.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"final.x3dv; else echo "Validate disabled"; fi
 

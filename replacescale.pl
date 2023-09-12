@@ -11,6 +11,6 @@ use warnings;
 
 while(<STDIN>) {
 	my $line = $_;
-	$line =~ s/scale[ \t]+([-0-9+e\.]+)[ \t]+([-0-9+e\.]+)[ \t]+([-0-9+e\.]+)/scale 0.5 0.5 0.5/;
+	$line =~ s/scale[ \t]+([-0-9+e\.]+)[ \t]+([-0-9+e\.]+)[ \t]+([-0-9+e\.]+)/scale 5 5 5/;
 	print $line;
 }
