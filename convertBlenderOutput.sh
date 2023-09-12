@@ -55,38 +55,38 @@ echo "${TOVRMLX3D} --validate ${PREFIX}revised.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"revised.x3dv; else echo "Validate disabled"; fi
 
 
-tail +2 "${INPUTDIR}/lily_7_3_points.txt" | sed -e 's/root //' |
-	sed -e 's/^(/0\t/' |
-	sed -e 's/)//g' |
-	sed -e 's/\r//g' |
-	sed -e 's/, /\t/g' |
-	sed -e 's/  / /g' |
-	sed -e 's/[ \t][ \t][ \t]*/\t/g' |
-	sed -e "s/^\([-0-9\.][0-9\.]*\)\t/print(\1);\t/" |
-	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) \xB5m/\tprint(\1*0.000001);/g" |
-	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) µm/\tprint(\1*0.000001);/g" |
-	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) mm/\tprint(\1*0.001);/g" |
-	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) cm/\tprint(\1*0.01);/g" |
-	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) m/\tprint(\1*1.0);/g" |
-	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\)/\tprint(\1);/g" |
-	sed -e "s/^\(print([0-9][0-9]*);\tprint\)\(([^)][^)]*)\)\(;\tprint\)\(([^)][^)]*)\)\(;\tprint\)\(([^)][^)]*)\)\(.*\)/\1(\2)\3(\4)\5(\6)\7/" |
-	sed -e 's/\t/print("\\t");\t/g' |
-	sed -e 's/$/print("\\n");\t/g' |
-	sed -e 's/[<>`|]//g' |
-	perl |
-	sed -e 's/\r$//' -e 's/^[0-9][0-9]*\t//' -e 's/\t$//' | tr '\t' ' ' > "$PROCESSDIR"/points.txt
+#tail +2 "${INPUTDIR}/lily_7_3_points.txt" | sed -e 's/root //' |
+#	sed -e 's/^(/0\t/' |
+#	sed -e 's/)//g' |
+#	sed -e 's/\r//g' |
+#	sed -e 's/, /\t/g' |
+#	sed -e 's/  / /g' |
+#	sed -e 's/[ \t][ \t][ \t]*/\t/g' |
+#	sed -e "s/^\([-0-9\.][0-9\.]*\)\t/print(\1);\t/" |
+#	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) \xB5m/\tprint(\1*0.000001);/g" |
+#	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) µm/\tprint(\1*0.000001);/g" |
+#	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) mm/\tprint(\1*0.001);/g" |
+#	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) cm/\tprint(\1*0.01);/g" |
+#	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\) m/\tprint(\1*1.0);/g" |
+#	sed -e "s/\t\([-0-9e\.][-0-9e\.]*\)/\tprint(\1);/g" |
+#	sed -e "s/^\(print([0-9][0-9]*);\tprint\)\(([^)][^)]*)\)\(;\tprint\)\(([^)][^)]*)\)\(;\tprint\)\(([^)][^)]*)\)\(.*\)/\1(\2)\3(\4)\5(\6)\7/" |
+#	sed -e 's/\t/print("\\t");\t/g' |
+#	sed -e 's/$/print("\\n");\t/g' |
+#	sed -e 's/[<>`|]//g' |
+#	perl |
+#	sed -e 's/\r$//' -e 's/^[0-9][0-9]*\t//' -e 's/\t$//' | tr '\t' ' ' > "$PROCESSDIR"/points.txt
+#
+#tail +2 "${INPUTDIR}/lily_7_3_polygon.txt" | sed -e 's/\r//g' -e 's/\t$//' -e 's/[^\t]*\t\([-0-9]*\)\t\([-0-9]*\)\t\([-0-9]*\)$/\1 \2 \3 -1/' > "${PROCESSDIR}"/triangles.txt
+#
+#tail +2 "${INPUTDIR}/lily_6_1_UVW.txt" | sed -n -e 's/^\([0-9][0-9]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t/\1 \2 \3 \5 \6 \8 \9/p' > "${PROCESSDIR}"/textures.txt
+#
+#echo "perl replacepointsvertices.pl ${PREFIX}revised.x3dv ${PREFIX}pav.x3dv ${PROCESSDIR}/points.txt  ${PROCESSDIR}/triangles.txt ${PROCESSDIR}/textures.txt"
+#perl replacepointsvertices.pl "${PREFIX}"revised.x3dv "${PREFIX}"pav.x3dv "${PROCESSDIR}"/points.txt  "${PROCESSDIR}"/triangles.txt "${PROCESSDIR}"/textures.txt
+#echo "${TOVRMLX3D} --validate ${PREFIX}pav.x3dv"
+#if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"pav.x3dv; else echo "Validate disabled"; fi
 
-tail +2 "${INPUTDIR}/lily_7_3_polygon.txt" | sed -e 's/\r//g' -e 's/\t$//' -e 's/[^\t]*\t\([-0-9]*\)\t\([-0-9]*\)\t\([-0-9]*\)$/\1 \2 \3 -1/' > "${PROCESSDIR}"/triangles.txt
-
-tail +2 "${INPUTDIR}/lily_6_1_UVW.txt" | sed -n -e 's/^\([0-9][0-9]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t\([0-9\.][0-9\.]*\)\t/\1 \2 \3 \5 \6 \8 \9/p' > "${PROCESSDIR}"/textures.txt
-
-echo "perl replacepointsvertices.pl ${PREFIX}revised.x3dv ${PREFIX}pav.x3dv ${PROCESSDIR}/points.txt  ${PROCESSDIR}/triangles.txt ${PROCESSDIR}/textures.txt"
-perl replacepointsvertices.pl "${PREFIX}"revised.x3dv "${PREFIX}"pav.x3dv "${PROCESSDIR}"/points.txt  "${PROCESSDIR}"/triangles.txt "${PROCESSDIR}"/textures.txt
-echo "${TOVRMLX3D} --validate ${PREFIX}pav.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"pav.x3dv; else echo "Validate disabled"; fi
-
-echo "perl haveIFSmoveToSkin.pl < ${PREFIX}pav.x3dv > ${PREFIX}skinplaced.x3dv"
-perl haveIFSmoveToSkin.pl < "${PREFIX}"pav.x3dv > "${PREFIX}"skinplaced.x3dv
+echo "perl haveIFSmoveToSkin.pl < ${PREFIX}revised.x3dv > ${PREFIX}skinplaced.x3dv"
+perl haveIFSmoveToSkin.pl < "${PREFIX}"revised.x3dv > "${PREFIX}"skinplaced.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}skinplaced.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"skinplaced.x3dv; else echo "Validate disabled"; fi
 

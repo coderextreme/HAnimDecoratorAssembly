@@ -11,64 +11,67 @@ use warnings;
 # TODO, look up DEFs in mapping.txt, reject HAnim Joints (not sites or segments yet) that don't fit list
 #
 
+print STDERR "Extracting $ARGV[0]\n";
+
 my $skin = "";
+my $countBracketOpen = 0;
+my $countBracketClosed = 0;
+my $countBraceOpen = 0;
+my $countBraceClosed = 0;
+my $counting = 0;
 open(SKIN, "<$ARGV[0]") or die "Cannot open $ARGV[0], skeleton with skin converted from X3D output from Blender\n";
 print STDERR "Reading $ARGV[0]\n";
 while(<SKIN>) {
-	$skin .= $_;
+	my $line = $_;
+	if ($line =~ / Shape /) { # begin counting braces
+		$counting = 1;
+		$line =~ s/children//;
+	}
+	if ($counting == 1) {
+		$skin .= $line;
+		$countBracketOpen += $line =~ tr/\[//;
+		$countBracketClosed += $line =~ tr/\]//;
+		$countBraceOpen += $line =~ tr/\{//;
+		$countBraceClosed += $line =~ tr/\}//;
+		if ($countBraceOpen == $countBraceClosed && $countBraceOpen > 0 && $countBraceClosed > 0 &&
+		  $countBracketOpen == $countBracketClosed && $countBracketOpen > 0 && $countBracketClosed > 0) {
+			# end of skin
+			$counting = 0;
+	        }
+	}
 }
 close(SKIN);
 
-# pull IFS fields out of skin
-#
-my $tcpoint = "";
-my $cpoint = "";
-my $tci = "";
-my $ci = "";
-
-print STDERR "Extracting $ARGV[0]\n";
-$skin =~ /geometry IndexedFaceSet(.|\n)+texCoord([^I]|\n)+TextureCoordinate \{.*point[^\[]*\[([^\]]*)\]/;
-$tcpoint = $3;
-$skin =~ /geometry IndexedFaceSet(.|\n)+coord(.|\n)+[^e]Coordinate \{.*point[^\[]*\[([^\]]*)\]/;
-$cpoint = $3;
-$skin =~ /geometry IndexedFaceSet(.|\n)+coordIndex[^\[]*\[([^\]]*)\]/;
-$ci = $2;
-$skin =~ /geometry IndexedFaceSet(.|\n)+texCoordIndex[^\[]*\[([^\]]*)\]/;
-$tci = $2;
-
-$skin = "";
-
-#print STDERR $tcpoint;
-#print STDERR $tci;
-#print STDERR $cpoint;
-#print STDERR $ci;
-
-
 my $skinless = "";
+$counting = 0;
+$countBracketOpen = 0;
+$countBracketClosed = 0;
+$countBraceOpen = 0;
+$countBraceClosed = 0;
 open(SKINLESS, "<$ARGV[1]") or die "Cannot open $ARGV[1], skeleton without skin\n";
 print STDERR "Reading $ARGV[1]\n";
 while(<SKINLESS>) {
-	$skinless .= $_;
+	my $line = $_;
+	if ($line =~ / Shape /) { # begin counting braces
+		$counting = 1;
+	}
+	if ($counting == 1) {
+		$countBracketOpen += $line =~ tr/\[//;
+		$countBracketClosed += $line =~ tr/\]//;
+		$countBraceOpen += $line =~ tr/\{//;
+		$countBraceClosed += $line =~ tr/\}//;
+		if ($countBraceOpen == $countBraceClosed && $countBraceOpen > 0 && $countBraceClosed > 0 &&
+		  $countBracketOpen == $countBracketClosed && $countBracketOpen > 0 && $countBracketClosed > 0) {
+			$counting = 0;
+			# replace entire skin
+			$skinless .= $skin;
+		}
+	} else {
+		$skinless .= $line;
+	}
 }
 close(SKINLESS);
 
-print STDERR "Substituting in data from $ARGV[0] into $ARGV[1]\n";
-$skinless =~ s/(DEF[ \t][ \t]*[^ \t][^ \t]*skin \[(.|\n)(.|\n)*geometry IndexedTriangleSet(.|\n)(.|\n)*texCoord(.|\n)(.|\n)*TextureCoordinate \{.*point[^\[]*\[)([^\]]*)\]/$1$tcpoint]/;
-if ($1) {
-	print STDERR "Success on TextureCoordinate point\n";
-}
-$skinless =~ s/(DEF[ \t][ \t]*[^ \t][^ \t]*skin \[(.|\n)(.|\n)*geometry IndexedTriangleSet(.|\n)(.|\n)*coord(.|\n)(.|\n)*[^e]Coordinate \{.*point[^\[]*\[)([^\]]*)\]/$1$cpoint]/;
-if ($1) {
-	print STDERR "Success on Coordinate point\n";
-}
-$skinless =~ s/(DEF[ \t][ \t]*[^ \t][^ \t]*skin \[(.|\n)(.|\n)*geometry IndexedTriangleSet(.|\n)(.|\n)*   coordIndex[^\[]*\[)([^\]]*)\]/$1$ci]/;
-if ($1) {
-	print STDERR "Success on coordIndex\n";
-}
-$skinless =~ s/(DEF[ \t][ \t]*[^ \t][^ \t]*skin \n(.|\n)(.|\n)*geometry IndexedTriangleSet(.|\n)(.|\n)*texCoordIndex[^\[]*\[)([^\]]*)\]/$1$tci]/;
-if ($1) {
-	print STDERR "Success on texCoordIndex\n";
-}
 
 print STDERR "Outputting\n";
 print STDOUT $skinless;
