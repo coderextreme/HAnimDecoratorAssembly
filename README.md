@@ -11,6 +11,3 @@ lily_73/lily_73.x3d (as exported by Blender)
 
 ./InputDir73/7_3 joint location.txt
 ./InputDir73/7_3_WEIGHTS.txt
-./InputDir73/lily_6_1_UVW.txt
-./InputDir73/lily_7_3_points.txt
-./InputDir73/lily_7_3_polygon.txt
