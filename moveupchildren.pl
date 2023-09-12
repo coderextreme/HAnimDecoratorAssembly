@@ -20,6 +20,7 @@ while(<STDIN>) {
 	my $line = $_;
 	if ($skeleton == 0 && $line =~ /^\t\t\t\t\t\tchildren/) {
 		$line =~ s/children/skeleton [/;
+		# $line =~ s/^([^\[]*)$/$1\[/;
 		print $line;
 		#$line = <STDIN>;
 		#$line = <STDIN>;
@@ -27,12 +28,12 @@ while(<STDIN>) {
 		#$line = <STDIN>;
 		#$line = <STDIN>;
 		$skeleton = 1;
-	} elsif ($skeleton == 1 && $line =~ /^\t\t\t\t\t\t\]/) {
+	} elsif ($skeleton == 1 && $line =~ /^\t\t\t\t\t\t\}/) {
 		$skeleton = 2;
-		print $line."]";
-	} elsif ($deletedFirstMeshDEF == 0 && $line =~ /node_t_Lily_RV7_Shape/) {
-		# $line = <STDIN>;
-		# $deletedFirstMeshDEF = 1;
+		print $line."]\n";
+	} elsif ($deletedFirstMeshDEF == 0 && $line =~ /mesh_t_Lily_RV7_Shape/) {
+		$line = <STDIN>;
+		$deletedFirstMeshDEF = 1;
 	} else {
 		print $line;
 	}

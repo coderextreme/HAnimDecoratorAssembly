@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 IFS=$'\n\t'
 # ~/Downloads/view3dscene-4.3.0-win64-x86_64/view3dscene/tovrmlx3d.exe --encoding classic "${PREFIX}".gltf > "${PREFIX}".gltfsource.x3dv 
 export WORKDIR=lily_73
@@ -11,7 +11,7 @@ export PROCESSDIR=ProcessDir73
 export INPUTDIR=InputDir73
 export VALIDATE=1
 
-echo "The main inputs are ${PREFIX}.gltf and ${PREFIX}.x3d as exported from Blender, there are other inputs, not documened yet"
+echo "The main inputs are ${PREFIX}.gltf and ${PREFIX}.x3d as exported from Blender, there are other inputs, not documented yet"
 
 echo "${TOVRMLX3D} --encoding classic ${PREFIX}.gltf > ${PREFIX}.gltfsource.x3dv"
 "${TOVRMLX3D}" --encoding classic "${PREFIX}".gltf > "${PREFIX}".gltfsource.x3dv 
@@ -90,8 +90,14 @@ perl haveIFSmoveToSkin.pl < "${PREFIX}"pav.x3dv > "${PREFIX}"skinplaced.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}skinplaced.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"skinplaced.x3dv; else echo "Validate disabled"; fi
 
-echo "perl replaceSkin.pl  ${PREFIX}.x3dsource.x3dv ${PREFIX}skinplaced.x3dv > ${PREFIX}final.x3dv"
-perl replaceSkin.pl  "${PREFIX}".x3dsource.x3dv "${PREFIX}"skinplaced.x3dv > "${PREFIX}"final.x3dv
+echo "perl replaceSkin.pl  ${PREFIX}.x3dsource.x3dv ${PREFIX}skinplaced.x3dv > ${PREFIX}skinned.x3dv"
+perl replaceSkin.pl  "${PREFIX}".x3dsource.x3dv "${PREFIX}"skinplaced.x3dv > "${PREFIX}"skinned.x3dv
+echo "${TOVRMLX3D} --validate ${PREFIX}skinned.x3dv"
+if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"skinned.x3dv; else echo "Validate disabled"; fi
+
+
+echo "perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > ${PREFIX}final.x3dv"
+perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > "${PREFIX}"final.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}final.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"final.x3dv; else echo "Validate disabled"; fi
 

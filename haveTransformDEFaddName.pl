@@ -28,13 +28,16 @@ while(<STDIN>) {
 		} elsif ($name =~ /_end$/) {
 			$nodeType = "HAnimSite";
 			$startTransformation = 1;
-		} elsif ($name =~ /mesh_t_Lily_RV7_Shape/) {
-			$name = "hanim";
+		} elsif ($name =~ /node_t_Lily_RV7_Shape/) {
+			# $name = "hanim";
 			$nodeType = "HAnimHumanoid";
 			$startTransformation = 1;
 		} elsif ($name =~ /Armature$/) {
 			$name = "hanim";
 			$nodeType = "HAnimHumanoid";
+			$startTransformation = 1;
+		} elsif ($startTransformation == 1) {
+			$nodeType = "HAnimJoint";
 			$startTransformation = 1;
 		} else {
 			$nodeType = "Transform";
@@ -42,13 +45,15 @@ while(<STDIN>) {
 		}
 		if ($startTransformation == 1) {
 			$line =~ s/DEF[ \t]*[^ \t]+[ \t]*Transform([ \t\{]+)/DEF $name $nodeType $1 name "$name" /;
+		} else {
+			print STDERR "Did not replace Transform, $line\n";
 		}
 	} elsif ($line =~ /(EXPORT) (.*)/) {
 		# $line = "$1 $2";
 		# delete
 		$line = "";
-	} elsif ($line =~ /lily_7_3_animate/) {
-		$line =~ s/lily_7_3_animate/hanim/g;
+#	} elsif ($line =~ /lily_7_3_animate/) {
+#		$line =~ s/lily_7_3_animate/hanim/g;
 	}
 	$countBracketOpen += $line =~ tr/\[//;
 	$countBracketClosed += $line =~ tr/\]//;

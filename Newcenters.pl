@@ -151,11 +151,11 @@ foreach my $line  (@skeleton) {
 		$line =~ s/[ \t][ \t]*$//g;
 		print STDERR "Couldn't match $line in centers.pl skeleton loop, not defining a center\n";
 	} elsif ($line =~ /rotation/) {
-		$line = "";
+		# $line = "";
 	} elsif ($line =~ /translation/) {
-		$line = "";
+		# $line = "";
 	} elsif ($line =~ /scale/) {
-		$line = "";
+		# $line = "";
 	}
 	print $line;
 }
