@@ -1,6 +1,6 @@
 # HAnimDecoratorAssembly
 
-The main thing this provides is a way to add skin coordinate information (weights and indexes) and skeletons to X3D files exported from Blender, via additions in glTF.  view3dscene has on their workplate to provide skeletons and skin coord information in X3DV, but we don't know when.  I am also working on extracting weights and indexes and skeleton directly from Python.  
+The main thing this provides is a way to add skin coordinate information (weights and indexes) and skeletons to X3D files exported from Blender, via additions in glTF.  view3dscene has on their workplate to provide skeletons and skin coord information in X3DV, but we don't know when.  I am also working on extracting weights and indexes and skeleton directly with Blender Python.  
 
 Reaching beta status.  Note that translations, rotations and scales are removed from humanoid.
 
