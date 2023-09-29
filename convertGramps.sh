@@ -12,6 +12,7 @@ export VIEW3DSCENE=~/Downloads/view3dscene-4.3.0-win64-x86_64/view3dscene/
 export X3DTIDY=x3d-tidy@latest
 export TOVRMLX3D="${VIEW3DSCENE}"tovrmlx3d.exe
 export PROCESSDIR=ProcessDir73
+mkdir -p "${PROCESSDIR}"
 export INPUTDIR=InputDir73
 export VALIDATE=0
 

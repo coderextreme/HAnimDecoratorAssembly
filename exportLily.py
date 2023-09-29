@@ -1,5 +1,7 @@
 import bpy
 
+# Note: requires X3DV experimental HAnim Blender export addon.
+
 objs = bpy.data.objects
 objs.remove(objs["Cube"], do_unlink=True)
 bpy.ops.import_scene.fbx(filepath = "lily_73/LILY_7_3_BLEND.fbx")
