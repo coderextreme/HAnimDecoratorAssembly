@@ -15,9 +15,6 @@ export PROCESSDIR=ProcessDir73
 export INPUTDIR=InputDir73
 export VALIDATE=1
 
-
-if false
-then
 echo "The main inputs are ${GLTFINPUT} and ${X3DINPUT} as exported from Blender, there are other inputs, not documented yet"
 #echo "npx ${X3DTIDY} -i ${GLTFINPUT} -o ${PREFIX}.gltfholger.x3dv"
 #npx ${X3DTIDY} -i ${GLTFINPUT} -o "${PREFIX}.gltfholger.x3dv"
@@ -59,8 +56,6 @@ perl presweep.pl < "${PREFIX}"named.x3dv > "${PREFIX}"swept.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}swept.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"swept.x3dv; else echo "Validate disabled"; fi
 
-
-fi
 #echo "perl reformatCenters.pl < ${INPUTDIR}/JointCenterCheck.txt > ${PROCESSDIR}/7_3 joint location.txt"
 #perl reformatCenters.pl < "${INPUTDIR}"/JointCenterCheck.txt > "${PROCESSDIR}/7_3 joint location.txt"
 
