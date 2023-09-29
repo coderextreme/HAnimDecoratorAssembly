@@ -8,10 +8,10 @@ Combine glTF and X3D exports from Blender, along with other sources.
 
 # Required inputs (Provided by you), documentation pending.
 
-lily_73/lily_73.gltf (as exported by Blender, be sure to include normals)
-lily_73/lily_73.x3d (as exported by Blender, be sure to include normals)
+./lily_73/blenderLily_notransrotbox.gltf (as exported by Blender, be sure to include normals)
+./lily_73/blenderLily_notransrotbox.x3dv (as exported by Blender, be sure to include normals)
 
-./InputDir73/7_3 joint location.txt
+"./InputDir73/7_3 joint location.txt"
 ./InputDir73/7_3_WEIGHTS.txt
 
 Note that the first model I worked with there were "patchups" required to the .x3dv file at the last step.  One is introduced, Shape, I think, the others are because the X3D and glTF have different DEF values for Coordinate and Normal.  See patchup*.pl
@@ -27,31 +27,63 @@ ${PREFIX} is a folder plus file prefix.
 
 I'll be looking at bringing over animations pretty soon.
 
-The below is old.
 
-# prepare for renaming and changing node types
-perl moveupchildren.pl < "${PREFIX}".gltfsource.x3dv > "${PREFIX}"notranschild.x3dv
+# set up variables
 
-# add names and change node types
-perl haveTransformDEFaddName.pl < "${PREFIX}"notranschild.x3dv > "${PREFIX}"named.x3dv
+export WORKDIR=lily_73
+export PREFIX="`pwd`/${WORKDIR}"/lily_73
+export GLTFINPUT="${WORKDIR}"/blenderLily_notransrotbox.gltf
+export X3DINPUT="${WORKDIR}"/blenderLily_notransrotbox.x3dv
+mkdir -p "${WORKDIR}"
+export VIEW3DSCENE=~/Downloads/view3dscene-4.3.0-win64-x86_64/view3dscene/
+export X3DTIDY=x3d-tidy@latest
+export TOVRMLX3D="${VIEW3DSCENE}"tovrmlx3d.exe
+export PROCESSDIR=ProcessDir73
+export INPUTDIR=InputDir73
+export VALIDATE=1
 
-# add joints field
-perl replacejoints.pl < "${PREFIX}"named.x3dv > "${PREFIX}"jointed.x3dv
+# convert glTF input to X3DV
+"${TOVRMLX3D}" --encoding classic ${GLTFINPUT} > "${PREFIX}".gltfmichalis.x3dv 
 
-# replace scale
-perl replacescale.pl < "${PREFIX}"jointed.x3dv > "${PREFIX}"scaled.x3dv
+# convert X3DV input to X3DV
+"${TOVRMLX3D}" --encoding classic ${X3DINPUT} > "${PREFIX}".x3dmichalis.x3dv 
 
-# add/replace joint centers
-perl Newcenters.pl "${INPUTDIR}/7_3 joint location.txt" < "${PREFIX}"scaled.x3dv > "${PREFIX}"centered.x3dv
-# add skin coord info
+# Add Toddler to DEFs
+
+perl toddlerHRE.pl Toddler_ "${PREFIX}".gltfmichalis.x3dv < "${PREFIX}".gltfmichalis.x3dv > "${PREFIX}"toddlerized1.x3dv
+
+# convert Transforms to HAnim nodes, add names to HAnim nodes.
+perl haveTransformDEFaddName.pl < "${PREFIX}"toddlerized1.x3dv > "${PREFIX}"named.x3dv
+
+
+# remove EXPORTS, rename sacroiliac
+
+perl presweep.pl < "${PREFIX}"named.x3dv > "${PREFIX}"swept.x3dv
+
+# add centers from joint location file (possibly pull from Blender?)
+perl Newcenters.pl "${INPUTDIR}/7_3 joint location.txt" "${PREFIX}"swept.x3dv < "${PREFIX}"swept.x3dv > "${PREFIX}"centered.x3dv
+
+# add skinCoord* info to HAnimJoints from weights file.
 perl haveSkeletonAddSkinCoord.pl "${INPUTDIR}/7_3_WEIGHTS.txt" <  "${PREFIX}"centered.x3dv > "${PREFIX}"revised.x3dv
 
-# move IndexedSet shape to skin
-perl haveIFSmoveToSkin.pl < "${PREFIX}"revised.x3dv > "${PREFIX}"skinplaced.x3dv
+# move Skin to correct place
+perl moveSkin.pl "${PREFIX}"revised.x3dv < "${PREFIX}"revised.x3dv > "${PREFIX}"skinplaced.x3dv
 
-# replace skin in glTF export with one from X3D export
-perl replaceSkin.pl  "${PREFIX}".x3dsource.x3dv "${PREFIX}"skinplaced.x3dv > "${PREFIX}"skinned.x3dv
+# move skin from X3DV export (michalis copy) to current workflow file, skinplaced
 
-# add image texture
-perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > "${PREFIX}"final.x3dv
+perl replaceSkin.pl  "${PREFIX}".x3dmichalis.x3dv "${PREFIX}"skinplaced.x3dv > "${PREFIX}"skinned.x3dv
 
+# add skin image
+
+perl haveAppearanceAddImage.pl < ${PREFIX}skinned.x3dv > "${PREFIX}"imaged.x3dv
+
+# use names for Blender exported animations
+
+perl patchupLily.pl < "${PREFIX}"imaged.x3dv > "${PREFIX}"final.x3dv
+
+# appened animations from old workflow
+
+cat < "${PREFIX}animations.txt" >> "${PREFIX}"final.x3dv
+
+# view the 3D model
+"${VIEW3DSCENE}"view3dscene.exe "${PREFIX}"final.x3dv
