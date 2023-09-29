@@ -21,12 +21,15 @@ The main program is convertLily.sh or convertGramps.sh
 
 Here's the basic workflow now, very simple.  I'm open to name changes now.  You may toggle validation between 0 and 1, which will improve performance if validation is disabled.
 
+Blender export scripts are provided as a convenience.  Also, the experimental HAnim Blender export plugin is included as a zip.  Install from Blender GUI.
+
 < means reading from file after.
 > means writing to file after
 ${PREFIX} is a folder plus file prefix.
 
 I'll be looking at bringing over animations pretty soon.
 
+Workflow description
 
 # set up variables
 
