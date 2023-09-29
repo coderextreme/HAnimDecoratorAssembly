@@ -2,7 +2,7 @@
 
 The main thing this provides is a way to add skin coordinate information (weights and indexes) and skeletons to X3D files exported from Blender, via additions in glTF.  view3dscene has on their workplate to provide skeletons and skin coord information in X3DV, but we don't know when.  I am also working on extracting weights and indexes and skeleton directly from Python.  
 
-Under development.  Has been tested on 1 .FBX.  People wanting to convert FBX to X3DV are welcome to contact me, leave anote in issues, etc.
+Reaching beta status.  Note that translations, rotations and scales are removed from humanoid.
 
 Combine glTF and X3D exports from Blender, along with other sources.
 
