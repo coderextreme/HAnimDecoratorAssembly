@@ -1,53 +1,43 @@
 #!/bin/bash
 set -uo pipefail
 IFS=$'\n\t'
-# ~/Downloads/view3dscene-4.3.0-win64-x86_64/view3dscene/tovrmlx3d.exe --encoding classic "${PREFIX}".gltf > "${PREFIX}".gltfsource.x3dv 
 export WORKDIR=lily_73
-export PREFIX="${WORKDIR}"/"${WORKDIR}"
+export PREFIX="`pwd`/${WORKDIR}"/"${WORKDIR}"
 # mkdir "${WORKDIR}"
 export VIEW3DSCENE=~/Downloads/view3dscene-4.3.0-win64-x86_64/view3dscene/
+export X3DTIDY=x3d-tidy@latest
 export TOVRMLX3D="${VIEW3DSCENE}"tovrmlx3d.exe
 export PROCESSDIR=ProcessDir73
 export INPUTDIR=InputDir73
-export VALIDATE=0
+export VALIDATE=1
 
 echo "The main inputs are ${PREFIX}.gltf and ${PREFIX}.x3d as exported from Blender, there are other inputs, not documented yet"
 
-echo "${TOVRMLX3D} --encoding classic ${PREFIX}.gltf > ${PREFIX}.gltfsource.x3dv"
-"${TOVRMLX3D}" --encoding classic "${PREFIX}".gltf > "${PREFIX}".gltfsource.x3dv 
-echo "${TOVRMLX3D} --validate ${PREFIX}.gltfsource.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}".gltfsource.x3dv; else echo "Validate disabled"; fi
+echo "npx ${X3DTIDY} -i ${PREFIX}.gltf -o ${PREFIX}.gltfholger.x3dv"
+npx ${X3DTIDY} -i "${PREFIX}.gltf" -o "${PREFIX}.gltfholger.x3dv"
+echo "${TOVRMLX3D} --validate ${PREFIX}.gltfholger.x3dv"
+if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}".gltfholger.x3dv; else echo "Validate disabled"; fi
 
-echo "${TOVRMLX3D} --encoding classic ${PREFIX}.x3d > ${PREFIX}.x3dsource.x3dv"
-"${TOVRMLX3D}" --encoding classic "${PREFIX}".x3d > "${PREFIX}".x3dsource.x3dv 
-echo "${TOVRMLX3D} --validate ${PREFIX}.x3dsource.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}".x3dsource.x3dv; else echo "Validate disabled"; fi
+echo "npx ${X3DTIDY} -i ${PREFIX}.x3d -o ${PREFIX}.x3dholger.x3dv"
+npx ${X3DTIDY} -i "${PREFIX}.x3d" -o "${PREFIX}.x3dholger.x3dv"
+echo "${TOVRMLX3D} --validate ${PREFIX}.x3dholger.x3dv"
+if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}".x3dholger.x3dv; else echo "Validate disabled"; fi
 
-echo "perl moveupchildren.pl < ${PREFIX}.gltfsource.x3dv > ${PREFIX}notranschild.x3dv"
-perl moveupchildren.pl < "${PREFIX}".gltfsource.x3dv > "${PREFIX}"notranschild.x3dv 
+echo "perl toddlerHRE.pl NO_TODDLER < ${PREFIX}.gltfholger.x3dv > ${PREFIX}toddlerized1.x3dv"
+perl toddlerHRE.pl NO_TODDLER < ${PREFIX}.gltfholger.x3dv > "${PREFIX}"toddlerized1.x3dv
+echo "${TOVRMLX3D} --validate ${PREFIX}toddlerized1.x3dv"
+if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"toddlerized1.x3dv; else echo "Validate disabled"; fi
 
-# shouldn't validate
-# if [ $VALIDATE -eq 1 ]; then ~/Downloads/view3dscene-4.3.0-win64-x86_64/view3dscene/tovrmlx3d.exe --validate "${PREFIX}"notranschild.x3dv; else echo "Validate disabled"; else echo "Validate disabled"; fi
-
-echo "perl haveTransformDEFaddName.pl < "${PREFIX}"notranschild.x3dv > "${PREFIX}"named.x3dv"
-perl haveTransformDEFaddName.pl < "${PREFIX}"notranschild.x3dv > "${PREFIX}"named.x3dv
+echo "perl presweep.pl < "${PREFIX}"toddlerized1.x3dv > "${PREFIX}"named.x3dv"
+perl presweep.pl < "${PREFIX}"toddlerized1.x3dv > "${PREFIX}"named.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}named.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"named.x3dv; else echo "Validate disabled"; fi
 
-echo "perl replacejoints.pl < "${PREFIX}"named.x3dv > "${PREFIX}"jointed.x3dv"
-perl replacejoints.pl < "${PREFIX}"named.x3dv > "${PREFIX}"jointed.x3dv
-echo "${TOVRMLX3D} --validate ${PREFIX}jointed.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"jointed.x3dv; else echo "Validate disabled"; fi
-
-echo "perl replacescale.pl < "${PREFIX}"jointed.x3dv > "${PREFIX}"scaled.x3dv"
-perl replacescale.pl < "${PREFIX}"jointed.x3dv > "${PREFIX}"scaled.x3dv
-echo "${TOVRMLX3D} --validate ${PREFIX}scaled.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"scaled.x3dv; else echo "Validate disabled"; fi
-
-echo "perl Newcenters.pl ${INPUTDIR}/7_3\ joint\ location.txt < ${PREFIX}scaled.x3dv > ${PREFIX}centered.x3dv"
-perl Newcenters.pl "${INPUTDIR}/7_3 joint location.txt" < "${PREFIX}"scaled.x3dv > "${PREFIX}"centered.x3dv
+echo "perl Newcenters.pl ${INPUTDIR}/7_3\ joint\ location.txt < ${PREFIX}named.x3dv > ${PREFIX}centered.x3dv"
+perl Newcenters.pl "${INPUTDIR}/7_3 joint location.txt" < "${PREFIX}"named.x3dv > "${PREFIX}"centered.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}centered.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"centered.x3dv; else echo "Validate disabled"; fi
+
 
 echo "perl haveSkeletonAddSkinCoord.pl ${INPUTDIR}/7_3_WEIGHTS.txt <  "${PREFIX}"centered.x3dv > "${PREFIX}"revised.x3dv"
 perl haveSkeletonAddSkinCoord.pl "${INPUTDIR}/7_3_WEIGHTS.txt" <  "${PREFIX}"centered.x3dv > "${PREFIX}"revised.x3dv
@@ -87,13 +77,8 @@ if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"revised.x3dv; 
 #echo "${TOVRMLX3D} --validate ${PREFIX}pav.x3dv"
 #if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"pav.x3dv; else echo "Validate disabled"; fi
 
-echo "perl haveIFSmoveToSkin.pl < ${PREFIX}revised.x3dv > ${PREFIX}skinplaced.x3dv"
-perl haveIFSmoveToSkin.pl < "${PREFIX}"revised.x3dv > "${PREFIX}"skinplaced.x3dv
-echo "${TOVRMLX3D} --validate ${PREFIX}skinplaced.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"skinplaced.x3dv; else echo "Validate disabled"; fi
-
-echo "perl replaceSkin.pl  ${PREFIX}.x3dsource.x3dv ${PREFIX}skinplaced.x3dv > ${PREFIX}skinned.x3dv"
-perl replaceSkin.pl  "${PREFIX}".x3dsource.x3dv "${PREFIX}"skinplaced.x3dv > "${PREFIX}"skinned.x3dv
+echo "perl replaceSkinHolger.pl  ${PREFIX}.x3dholger.x3dv ${PREFIX}revised.x3dv > ${PREFIX}skinned.x3dv"
+perl replaceSkinHolger.pl  "${PREFIX}".x3dholger.x3dv "${PREFIX}"revised.x3dv > "${PREFIX}"skinned.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}skinned.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"skinned.x3dv; else echo "Validate disabled"; fi
 
@@ -103,18 +88,13 @@ echo "${TOVRMLX3D} --validate ${PREFIX}imaged.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"imaged.x3dv; else echo "Validate disabled"; fi
 
 
-echo "perl toddlerHRE.pl < ${PREFIX}imaged.x3dv > ${PREFIX}toddlerized.x3dv"
-perl toddlerHRE.pl < ${PREFIX}imaged.x3dv > "${PREFIX}"toddlerized.x3dv
-echo "${TOVRMLX3D} --validate ${PREFIX}toddlerized.x3dv"
-if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"toddlerized.x3dv; else echo "Validate disabled"; fi
-
-echo "perl patchup.pl < ${PREFIX}toddlerized.x3dv > ${PREFIX}final.x3dv"
-perl patchup.pl < "${PREFIX}"toddlerized.x3dv > "${PREFIX}"final.x3dv
+echo "perl patchupHolger.pl < ${PREFIX}imaged.x3dv > ${PREFIX}final.x3dv"
+perl patchupHolger.pl < "${PREFIX}"imaged.x3dv > "${PREFIX}"final.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}final.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"final.x3dv; else echo "Validate disabled"; fi
 
-echo "cat < ${PREFIX}animations.txt >> ${PREFIX}final.x3dv"
-cat < "${PREFIX}animations.txt" >> "${PREFIX}"final.x3dv
+echo "cat < ${PREFIX}animations.txt | sed s/Toddler_//g >> ${PREFIX}final.x3dv"
+cat < "${PREFIX}animations.txt" | sed 's/Toddler_//g' >> "${PREFIX}"final.x3dv
 echo "${TOVRMLX3D} --validate ${PREFIX}final.x3dv"
 if [ $VALIDATE -eq 1 ]; then "${TOVRMLX3D}" --validate "${PREFIX}"final.x3dv; else echo "Validate disabled"; fi
 

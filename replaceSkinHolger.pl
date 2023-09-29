@@ -4,7 +4,7 @@ use warnings;
 
 # parameters
 #
-# $ARGV[0] -- VRML skeleton with skin.  This skin has IndexedFaceSet
+# $ARGV[0] -- VRML skeleton with skin.  This skin has IndexedRaceSet
 # $ARGV[1] -- VRML skin to replace.  This skin has IndexedTriangleSet...we are replacing it
 # STDOUT -- combined VRML skeleton
 #
@@ -25,7 +25,7 @@ while(<SKIN>) {
 	my $line = $_;
 	if ($line =~ / Shape /) { # begin counting braces
 		$counting = 1;
-		$line =~ s/children//;
+		$line =~ s/children/skin /;
 	}
 	if ($counting == 1) {
 		$skin .= $line;

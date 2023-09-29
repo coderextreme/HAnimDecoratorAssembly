@@ -9,53 +9,57 @@ use Math::Trig;
 # parameters
 #
 # $ARGV[0] -- JOint center and rotation
+# $ARGV[1] -- a skeleton source of DEFs (same as STDIN)
 # STDIN -- X3DV file with HAnimJoints
 #
 #
 
 my %joints = ();
 my $joint = "WRONG JOINT";
-my @skeleton = ();
 my @joints = ();
-while(<STDIN>) {
-	push @skeleton, $_;
+open (DEFS, "<$ARGV[1]") or die "Couldn't open DEFs file $ARGV[1]";
+while (<DEFS>) {
+	my $line = $_;
 
-	if (/^(.*)(DEF|USE) ([^ ]*) HAnimJoint(.*)name[ \t]*["']([^\"\']*)['"]/) {
-		my $header = $1;
-		my $defuse = $2;
-		my $defjoint = $3;
-		my $leadingfields = $4;
-		my $name = $5;
-		my $joint = $5;
+	if ($line =~ /(DEF|USE)[ \t]+([^ \t]+)[ \t]+HAnimJoint/) {
+		my $defjoint = $2;
+		# print STDERR $line;
+		$defjoint =~ s/(Toddler|[Gg]ramps|hanim)_//;
+		my $joint = $defjoint;
 		$joints{$joint} = {};
+		print STDERR "Creating joint object $joint\n";
 		my $jointobj = $joints{$joint};
 		$jointobj->{DEF} = $defjoint;
 		push @joints, $jointobj;
-	} elsif (/HAnimJoint/) {
-		print STDERR "Couldn't match $_ in centers.pl stdin loop\n";
+	} elsif ($line =~ /HAnimJoint/) {
+		print STDERR "Couldn't match $_ in Newcenters.pl DEFS loop\n";
 	}
 }
-
+close(DEFS);
+print STDERR "Now proceeding with getting centers from $ARGV[0]\n";
 open (CENTERS, "<$ARGV[0]") or die "Couldn't open center locations and rotations file $ARGV[0]";
 $joint = "WRONG JOINT";
 
 while (<CENTERS>) {
 	chomp;
 	$joint = $_;
-	if (/^S/) {
+	if (/^S/) {  # Sacroiliac, etc.
 		$joint = lc($joint);
 	}
 	if (/^([ \t]*)\r$/) {
 		$joint = $1;
+		print STDERR "skipping blank line\n";
 		next;  #  line with white space, skip to next
 	}
 	# 
 	if (/^([ \r\t]*)$/) {
 		# skip blank lines
+		print STDERR "skipping blank line\n";
 		next;
 	}
 	while ($joint =~ /(.*)\r$/) {
 		# spin until no new carriage returns
+		print STDERR "stripping carriage returns\n";
 		$joint = $1;
 	}
 	if ($joint =~ /(.*) end\r*$/) {
@@ -69,7 +73,9 @@ while (<CENTERS>) {
 		print STDERR "Warning, Bogus-2 joint '$joint'\r\n";
 		$joint = $1;
 	}
+	print STDERR "Looking up joint object $joint\n";
 	my $jointobj = $joints{$joint};
+	print STDERR "Joint object is $jointobj\n";
 	if ($jointobj->{DEF}) {
 		print STDERR "Entering $joint \r\n";
 		while(<CENTERS>) {
@@ -117,14 +123,15 @@ for (@joints) {
 	#$jointBindingRotations .= $_->{Rotation};
 	#$jointBindingRotations .= "\n";
 }
-foreach my $line  (@skeleton) {
-# $skeleton =~ s/jointBindingPositions \[(( |\n|\r|[^\]])*)\]/jointBindingPositions [ $jointBindingPositions\n ]/;
-# $skeleton =~ s/jointBindingRotations \[(( |\n|\r|[^\]])*)\]/jointBindingRotations [ $jointBindingRotations\n ]/;
-	if ($line =~ /^(.*)HAnimJoint(.*)name[ \t][ \t]*["']([^\"\']*)['"](.*)$/) {
+while(<STDIN>) {
+	my $line = $_;
+	if ($line =~ /(.*DEF[ \t]*)([^ \t]*)([ \t]*HAnimJoint.*\{)(.*)$/) {
 		my $header = $1;
-		my $leadingfields = $2;
-		my $joint = $3;
-		my $fields = $4;
+		my $defjoint = $2;
+		my $tag = $3;
+		my $trailer = $4;
+		my $joint = $defjoint;
+		$joint =~ s/(Toddler|[Gg]ramps|hanim)_//;
 		my $jointobj = $joints{$joint};
 		my $center = "0 0 0";
 		if ($jointobj && $jointobj->{Center}) {
@@ -145,17 +152,17 @@ foreach my $line  (@skeleton) {
 			$center = "0.0 0.0 0.0";
 		}
 		# replace the existing line
-		$line = $header."HAnimJoint".$leadingfields."name \"$joint\" center $center $fields"."\n";
+		$line = "$header$defjoint$tag\n center $center\n$trailer";
 	} elsif ($line =~ /HAnimJoint/) {
 		$line =~ s/^[ \t][ \t]*//g;
 		$line =~ s/[ \t][ \t]*$//g;
-		print STDERR "Couldn't match $line in centers.pl skeleton loop, not defining a center\n";
-	} elsif ($line =~ /rotation/) {
-		# $line = "";
-	} elsif ($line =~ /translation/) {
-		# $line = "";
-	} elsif ($line =~ /scale/) {
-		# $line = "";
+		print STDERR "Couldn't match $line in Newcenters.pl stdin loop, not defining a center\n";
+	} elsif ($line =~ /[ \t]rotation[ \t]/) {
+		$line = "";
+	} elsif ($line =~ /[ \t]translation[ \t]/) {
+		$line = "";
+	} elsif ($line =~ /[ \t]scale[ \t]/) {
+		$line = "";
 	}
 	print $line;
 }

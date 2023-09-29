@@ -8,6 +8,6 @@ while(<STDIN>) {
 	my $line = $_;
 	print $line;
 	if ($line =~ /appearance.*Appearance/) {
-		print "texture ImageTexture { url [ \"lily_2t_BaseColor.png\" ] }\n"
+		print "texture ImageTexture { url [ \"gramps_uv.png\" \"lily_2t_BaseColor.png\" \"gramps.png\" ] }\n"
 	}
 }

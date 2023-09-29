@@ -39,24 +39,24 @@ my $skinCoordWeight = " ";
 $joint = "WRONG JOINT";
 while (<STDIN>) {
 	my $line = $_;
-	if ($line !~ /^(.*DEF [^ \t]* HAnimJoint.*name[ \t]*["'][^\"\']*['"].*skinCoordIndex[ \t]*\[[^\]]*\][ \t]*skinCoordWeight[ \t]*\[*[^\]]*\])(.*\r*)$/) {
-		if ($line =~ /^(.*DEF [^ \t]* HAnimJoint.*name[ \t]*["'][^\"\']*['"])(.*\r*)$/) {
+	if ($line !~ /^(.*DEF [^ \t]* HAnimJoint.*skinCoordIndex[ \t]*\[[^\]]*\][ \t]*skinCoordWeight[ \t]*\[*[^\]]*\])(.*\r*)$/) {
+		if ($line =~ /^(.*DEF [^ \t]* HAnimJoint)(.*{)(.*\r*)$/) {
 			my $header = $1;
-			my $footer = $2;
-			$line = "$header skinCoordIndex [  ] skinCoordWeight[  ] $footer";
+			my $mid = $2;
+			my $footer = $3;
+			$line = "$header$mid skinCoordIndex [  ] skinCoordWeight [  ] $footer";
 		}
 	}
-	if ($line =~ /^(.*)DEF ([^ ]*) HAnimJoint(.*)name[ \t]*["']([^\"\']*)['"](.*)skinCoordIndex[ \t]*(\[[^\]]*\])[ \t]*skinCoordWeight[ \t]*(\[*[^\]]*\])(.*)\r*$/) {
+	if ($line =~ /^(.*)DEF[ \t]+([^ \t]*)[ \t]+HAnimJoint(.*)skinCoordIndex[ \t]*(\[[^\]]*\])[ \t]*skinCoordWeight[ \t]*(\[*[^\]]*\])(.*)\r*$/) {
 	# if (/^(.*)DEF ([^ ]*) HAnimJoint(.*)name[ \t]*["']([^\"\']*)['"](.*)/) {
 		my $header = $1;
 		my $defjoint = $2;
-		my $leadingfields = $3;
-		my $name = $4;
-		my $joint = $4;
-		my $fields = $5;
-		my $sci = $6;
-		my $scw = $7;
-		my $rest = $8;
+		my $fields = $3;
+		my $sci = $4;
+		my $scw = $5;
+		my $rest = $6;
+		my $joint = $defjoint;
+		$joint =~ s/(Toddler|[Gg]ramps|hanim)_//;
 		my $jointobj = $joints{$joint};
 		if (defined($jointobj)) {
 			# print STDERR "Match! $joint\n";
@@ -68,7 +68,7 @@ while (<STDIN>) {
 			if ($scw ne $skinCoordWeight) {
 				print STDERR "Replacing skinCoordWeight $scw\n";
 			}
-			print STDOUT "$header"."\nDEF ".$defjoint." HAnimJoint$leadingfields"."name \"$name\" $fields skinCoordIndex [ ".join(" ", $skinCoordIndex)." ] skinCoordWeight [ ".join(" ", $skinCoordWeight)." ] $rest";
+			print STDOUT "$header"."\nDEF ".$defjoint." HAnimJoint $fields skinCoordIndex [ ".join(" ", $skinCoordIndex)." ] skinCoordWeight [ ".join(" ", $skinCoordWeight)." ] $rest";
 			print STDERR "Found Joint $joint in weights table!\n";
 		} else {
 			print STDERR "No match for Joint $joint in weights table! (no weights?)\n";

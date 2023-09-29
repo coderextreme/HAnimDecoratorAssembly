@@ -31,6 +31,7 @@ my $rest = $6;
 if ($shape =~ /(\{([^{}]+|(?R))*\})/)
 {
 	my $ifs = $1;
+	print STDERR $ifs;
 	my $trailing = substr($skin, length $leading.$children.$space.$obj.$ifs);
 	print STDERR "leading length ".length($leading);
 	print STDERR "\nchildren".length($children);

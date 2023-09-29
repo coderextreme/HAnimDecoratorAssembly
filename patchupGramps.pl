@@ -10,8 +10,5 @@ while(<STDIN>) {
 	$line =~ s/coords_ME_ID6410/Coordinate/;
 	$line =~ s/Shape\./ME_ID6410./;
 	$line =~ s/Normal\./normals_ME_ID6410./;
-	$line =~ s/coords_ME_mesh_t_Lily_RV7_Shape/Coordinate/;
-	$line =~ s/ME_mesh_t_Lily_RV7_Shape/Shape/;
-	$line =~ s/normals_ME_mesh_t_Lily_RV7_Shape/Normal/;
 	print $line;
 }
